@@ -14,4 +14,5 @@ export interface FrameData {
   initialPos: THREE.Vector3;
   explodePos: THREE.Vector3;
   rotation: THREE.Euler;
+  explodeRotation: THREE.Euler;
 }

@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useEffect } from 'react';
 import * as THREE from 'three';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, ThreeEvent } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { generateFrameData } from '../utils';
 import { FrameData } from '../types';
@@ -30,8 +30,10 @@ const SingleFrame: React.FC<{ data: FrameData; isExploded: boolean }> = ({ data,
     });
   }, [imageUrl]);
   
-  // Current position state for lerping
+  // Current position and rotation state helpers
   const currentPos = useRef(data.initialPos.clone());
+  const qCurrent = useRef(new THREE.Quaternion().setFromEuler(data.rotation));
+  const qTarget = useRef(new THREE.Quaternion());
 
   useFrame((state, delta) => {
     if (!meshRef.current) return;
@@ -46,19 +48,16 @@ const SingleFrame: React.FC<{ data: FrameData; isExploded: boolean }> = ({ data,
     currentPos.current.lerp(new THREE.Vector3(target.x, target.y + floatY, target.z), delta * 3);
     meshRef.current.position.copy(currentPos.current);
 
-    // Look at camera when exploded, look out when in tree
-    if (isExploded) {
-        // Let's add a slow spin when exploded
-        meshRef.current.rotation.y += delta * 0.1;
-    } else {
-        // Return to initial rotation
-        meshRef.current.rotation.x = data.rotation.x;
-        meshRef.current.rotation.y = data.rotation.y;
-        meshRef.current.rotation.z = data.rotation.z;
-    }
+    // Slerp Rotation
+    const targetEuler = isExploded ? data.explodeRotation : data.rotation;
+    qTarget.current.setFromEuler(targetEuler);
+    
+    // Smoothly rotate towards target
+    qCurrent.current.slerp(qTarget.current, delta * 3);
+    meshRef.current.rotation.setFromQuaternion(qCurrent.current);
   });
 
-  const handleClick = (e: THREE.Event) => {
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
     // Trigger file input
     fileInputRef.current?.click();
