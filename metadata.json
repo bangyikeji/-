@@ -1,0 +1,5 @@
+{
+  "name": "3D Interactive Christmas Tree",
+  "description": "A high-performance 3D Christmas tree made of geometric shapes and interactive picture frames using React Three Fiber and InstancedMesh.",
+  "requestFramePermissions": []
+}
