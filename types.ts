@@ -5,8 +5,9 @@ export interface PositionData {
   rotation: THREE.Euler;
   scale: number;
   explodeVector: THREE.Vector3;
-  color?: string;
-  type?: 'sphere' | 'cube';
+  color: string;
+  type: 'sphere' | 'cube';
+  group: 'accent' | 'glow' | 'particle';
 }
 
 export interface FrameData {
